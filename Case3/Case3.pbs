@@ -1,0 +1,60 @@
+#!/bin/bash
+#SBATCH --account=hpc_x_gwf_razavi
+#SBATCH --nodes=1
+#SBATCH --tasks-per-node=16
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=00:30:00
+#SBATCH --job-name=Case3
+#SBATCH --mail-user=fuad.yassin@usask.ca
+#SBATCH --mail-type=END
+#SBATCH --mail-type=FAIL
+
+# MESH Model input Directory
+local_rundir=/home/fay750/B_SRB_MESH/F010_bow_scalingBlowingPBSM
+
+#Running Directory
+running_dir=/home/fay750/B_SRB_MESH/F010_bow_scalingBlowingPBSM/Case3
+cd $running_dir 
+
+# Forcing Data Directory
+dir_forcing=/home/fay750/B_SRB_MESH/F010_bow_scalingBlowingPBSM
+
+# MESH Model Directory
+mesh_dir=/home/fay750/B_SRB_MESH/Z_MESH_code/r1693
+
+# Clean previous links and output files and folders
+# cp $local_rundir/clean_files.sh   $running_dir/clean_files.sh  
+# ./clean_files.sh
+rm $running_dir/BASINAVG1/*
+cd $running_dir
+
+ln -sfn $local_rundir/MESH_parameters_CLASS_Case3.ini                          $running_dir/MESH_parameters_CLASS.ini
+ln -sfn $local_rundir/MESH_parameters_hydrology.ini                            $running_dir/MESH_parameters_hydrology.ini
+ln -sfn $local_rundir/MESH_input_reservoir.txt                                 $running_dir/MESH_input_reservoir.txt
+ln -sfn $local_rundir/MESH_input_run_options.ini                               $running_dir/MESH_input_run_options.ini
+ln -sfn $local_rundir/MESH_drainage_database_pbsm_order.r2c                    $running_dir/MESH_drainage_database.r2c
+ln -sfn $local_rundir/MESH_input_soil_levels.txt                               $running_dir/MESH_input_soil_levels.txt
+ln -sfn $local_rundir/outputs_balance.txt                                      $running_dir/outputs_balance.txt
+ln -sfn $local_rundir/MESH_input_streamflow.txt                                $running_dir/MESH_input_streamflow.txt 
+ln -sfn $local_rundir/minmax_parameters.txt                                    $running_dir/minmax_parameters.txt
+ 
+ln -sfn $dir_forcing/basin_rain_capa_v24b8_1h_P010_2002010106_2017090100.r2c    $running_dir/basin_rain.r2c
+ln -sfn $dir_forcing/basin_wind_P010_2001123118_2017083112.r2c                  $running_dir/basin_wind.r2c
+ln -sfn $dir_forcing/basin_humidity_P010_2001123118_2017083112.r2c              $running_dir/basin_humidity.r2c
+ln -sfn $dir_forcing/basin_shortwave_P010_2001123118_2017083112.r2c             $running_dir/basin_shortwave.r2c
+ln -sfn $dir_forcing/basin_longwave_P010_2001123118_2017083112.r2c              $running_dir/basin_longwave.r2c
+ln -sfn $dir_forcing/basin_temperature_P010_2001123118_2017083112.r2c           $running_dir/basin_temperature.r2c
+ln -sfn $dir_forcing/basin_pres_P010_2001123118_2017083112.r2c                  $running_dir/basin_pres.r2c
+
+
+srun $mesh_dir/mpi_sa_mesh
+#mpirun $mesh_dir/mpi_sa_mesh
+
+today=`date '+%Y_%m_%d__%H_%M'`;
+if [ -f ./BASINAVG1/Metrics_Out.txt ]; then
+    mkdir -p ./Case3_${today}
+    cp -r ./BASINAVG1                                            ./Case3_${today}/BASINAVG1
+    cp -r ./CLASSOUT1                                            ./Case3_${today}/CLASSOUT1
+    cp  $local_rundir/MESH_parameters_CLASS_Case3.ini            ./Case3_${today}/MESH_parameters_CLASS.ini     
+fi
+

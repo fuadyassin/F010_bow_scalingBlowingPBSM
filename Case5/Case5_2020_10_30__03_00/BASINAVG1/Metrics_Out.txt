@@ -1,0 +1,2 @@
+          Gauge             MAE            RMSE            BIAS         AbsBIAS             NSD          NegNSD           lnNSD        NeglnNSD             TPD             KGE          NegKGE 
+              1    13.12895        22.23766       0.2301522       0.2301522       0.6984956      -0.6984956      -0.6850157       0.6850157                  86   0.7360242      -0.7360242     
